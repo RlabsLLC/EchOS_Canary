@@ -19,4 +19,7 @@
 
 ---
 
-## To get the canary build, contact Robolabs: robolabsllc@gmail.com 
+## To get the latest canary build, contact Robolabs: robolabsllc@gmail.com 
+
+---
+**Previous Versions are free do download.**
