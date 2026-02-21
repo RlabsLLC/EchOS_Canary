@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchOS _Canary | Repo Browser</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+
+        .markdown-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            color: #58a6ff;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .markdown-body code {
+            font-family: 'Fira Code', monospace;
+            background: #161b22;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 85%;
+        }
+        .markdown-body ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .canary-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .canary-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            background: rgba(110, 118, 129, 0.1);
+            color: #8b949e;
+            border: 1px solid rgba(110, 118, 129, 0.2);
+        }
+        .status-badge-dev {
+            background: rgba(163, 113, 247, 0.1);
+            color: #a371f7;
+            border: 1px solid rgba(163, 113, 247, 0.2);
+        }
+        .status-badge-upcoming {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        /* Dropdown styling */
+        .archive-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .archive-dropdown.active {
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#30363d] p-6 shrink-0">
+        <div class="flex items-center gap-2 mb-8">
+            <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center text-black font-bold">✧</div>
+            <h1 class="text-xl font-semibold tracking-tight">EchOS <span class="text-yellow-500">_Canary</span></h1>
+        </div>
+        
+        <nav class="space-y-1">
+            <a href="#" class="block px-3 py-2 rounded-md bg-[#21262d] text-white">Releases</a>
+            
+            <!-- Canary Archive Dropdown -->
+            <div class="relative">
+                <button onclick="toggleArchive()" class="w-full flex justify-between items-center px-3 py-2 rounded-md hover:bg-[#21262d] transition-colors">
+                    Canary Archive
+                </button>
+                <div id="archiveContent" class="archive-dropdown space-y-1 pl-4 mt-1 text-sm text-gray-400">
+                    <i>Nothing Yet!</i>
+                </div>
+            </div>
+
+            <a href="https://github.com/rlabsllc/EchOS_Canary" target="_blank" class="block px-3 py-2 rounded-md hover:bg-[#21262d] transition-colors">Source Code</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+        <header class="mb-10">
+            <h2 class="text-3xl font-bold mb-2 text-white">Repository Browser</h2>
+            <p class="text-gray-400">Experimental Beta builds of the EchOS project.</p>
+        </header>
+
+        <div id="version-list" class="space-y-6 max-w-4xl">
+            <!-- Cards will be rendered here -->
+        </div>
+    </main>
+
+    <script>
+        const builds = [
+            {
+                version: "0.3.6 [Build 14]",
+                date: "Upcoming",
+                status: "Dev Preview",
+                isUpcoming: true,
+                isDev: false,
+                downloadUrl: "#",
+                content: "### Major Architecture Shift (Planned)\n- Switching from `JSON` commands to `SHELL` for handling commands to limit syntax errors.\n- Added app error handling in case of an unexpected crash.\n- **TerminalSB** built for emulating the `SB3_UNIX` command prompt.\n- New `install` command to install HTML/React into the `/Apps` Directory."
+            },
+            {
+                version: "0.3.6 [Build 13.1]",
+                date: "Latest Release",
+                status: "Dev Only",
+                isUpcoming: false,
+                isDev: true,
+                downloadUrl: "https://drive.google.com",
+                content: "### Changelog\n- Fixed error in `Desktop__` to stop throwing a JavaScript Error."
+            },
+            {
+                version: "0.3.6 [Build 13]",
+                date: "3 days ago",
+                status: "Public Legacy",
+                isUpcoming: false,
+                isDev: false,
+                downloadUrl: "https://github.com/rlabsllc/EchOS_Canary/releases",
+                content: "### Changelog\n- New window design\n- Fixed `Welcome.html` from crashing before starting\n- **SmartActions (BETA)** feature update\n- Now able to run custom HTML without install"
+            },
+            {
+                version: "0.3.6 [Build 12]",
+                date: "1 week ago",
+                status: "Public Legacy",
+                isUpcoming: false,
+                isDev: false,
+                downloadUrl: "https://github.com/rlabsllc/EchOS_Canary/releases",
+                content: "### Changelog\n- `Desktop__` JSON errors fixed\n- **REACT** support added (Experimental)\n- Added warnings before an app requests to edit/remove sensitive parts of the FileSystem\n- Tweaks to the `SB3_UNIX` Kernel"
+            }
+        ];
+
+        const container = document.getElementById('version-list');
+
+        function toggleArchive() {
+            const content = document.getElementById('archiveContent');
+            content.classList.toggle('active');
+        }
+
+        function renderBuilds() {
+            container.innerHTML = builds.map((build, index) => {
+                let badgeClass = 'status-badge';
+                if (build.isUpcoming) badgeClass = 'status-badge-upcoming';
+                else if (build.isDev) badgeClass = 'status-badge-dev';
+
+                const buttonText = build.isUpcoming ? 'Coming Soon' : (build.isDev ? 'Request Access' : 'Download Binary');
+                const buttonClass = build.isUpcoming 
+                    ? 'bg-[#30363d] text-gray-500 cursor-not-allowed' 
+                    : (build.isDev ? 'bg-[#8957e5] hover:bg-[#9666f2] text-white' : 'bg-[#238636] hover:bg-[#2ea043] text-white');
+
+                return `
+                <div class="canary-card rounded-xl p-6 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-white">${build.version}</h3>
+                            <span class="text-xs text-gray-500">${build.date}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] uppercase font-bold px-2 py-1 rounded ${badgeClass}">
+                                ${build.status}
+                            </span>
+                            <a href="${build.downloadUrl}" ${build.isUpcoming ? 'onclick="return false;"' : 'target="_blank"'} class="${buttonClass} px-4 py-1.5 rounded-lg text-sm font-medium transition-colors inline-block text-center">
+                                ${buttonText}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="markdown-body pt-4 border-t border-[#30363d]" id="content-${index}">
+                        ${marked.parse(build.content)}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        renderBuilds();
+    </script>
+</body>
+</html>
